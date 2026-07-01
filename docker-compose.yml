@@ -1,0 +1,37 @@
+# Two services: the Streamlit app and a standalone ChromaDB server.
+#
+# Why a separate Chroma container? The persistent (single-file) client can't have
+# two processes writing at once. Running Chroma as its own server sidesteps that and
+# is closer to how you'd deploy: the app talks to it over HTTP. The app is switched
+# to http mode via RAPIDHIRE_CHROMA_MODE below.
+services:
+  chroma:
+    image: chromadb/chroma:1.0.0
+    ports:
+      - "8000:8000"
+    volumes:
+      - chroma-data:/data
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://localhost:8000/api/v2/heartbeat').status==200 else 1)"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build: .
+    ports:
+      - "8501:8501"
+    depends_on:
+      chroma:
+        condition: service_healthy
+    environment:
+      # Point the app at the Chroma service instead of a local file.
+      RAPIDHIRE_CHROMA_MODE: http
+      RAPIDHIRE_CHROMA_HOST: chroma
+      RAPIDHIRE_CHROMA_PORT: "8000"
+      # Pass your key through from the host environment (don't bake it into the image).
+      RAPIDHIRE_OPENAI_API_KEY: ${RAPIDHIRE_OPENAI_API_KEY:-}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+
+volumes:
+  chroma-data:

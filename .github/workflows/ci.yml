@@ -1,0 +1,44 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # The floor and ceiling of the supported range. If it works on both, the
+        # middle is very unlikely to surprise us.
+        python-version: ["3.10", "3.12"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          version: "0.5.11"
+          enable-cache: true
+
+      - name: Set up Python ${{ matrix.python-version }}
+        run: uv python install ${{ matrix.python-version }}
+
+      # --locked fails the build if uv.lock is stale relative to pyproject.toml,
+      # which keeps the committed lock honest.
+      - name: Install dependencies
+        run: uv sync --locked
+
+      - name: Lint
+        run: uv run ruff check .
+
+      - name: Format check
+        run: uv run ruff format --check .
+
+      # No OPENAI_API_KEY in CI on purpose: every test that would hit the network
+      # mocks the LLM, so a green run proves the suite doesn't secretly depend on it.
+      - name: Test
+        run: uv run pytest

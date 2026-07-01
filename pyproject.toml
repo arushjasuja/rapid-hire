@@ -1,0 +1,79 @@
+[project]
+name = "rapidhire"
+version = "0.1.0"
+description = "Multi-agent candidate screening: parse, match, score, and rank resumes against a role."
+readme = "README.md"
+license = { file = "LICENSE" }
+requires-python = ">=3.10,<3.13"
+authors = [{ name = "RapidHire contributors" }]
+
+# Version ranges, not exact pins, live here; uv.lock holds the exact resolved set.
+# These four frameworks all depend on `openai`, `pydantic`, `httpx` and friends, so
+# the ranges are deliberately loose to let the resolver find one consistent set.
+dependencies = [
+    "crewai>=1.14,<2",
+    "langchain>=1,<2",
+    "langchain-core>=1,<2",
+    "langchain-openai>=1,<2",
+    "autogen-agentchat>=0.7,<0.8",
+    "autogen-ext[openai]>=0.7,<0.8",
+    # crewai pins chromadb to the 1.1.x line, so the ceiling here matches that rather
+    # than the newer 1.5+ series. The vector-store code only uses stable client APIs.
+    "chromadb>=1.1,<1.2",
+    "sentence-transformers>=5,<6",
+    "openai>=1.68,<3",
+    "streamlit>=1.40,<2",
+    "pydantic>=2.9,<3",
+    "pydantic-settings>=2.3,<3",
+    "pypdf>=5,<7",
+    "python-docx>=1.1,<2",
+    "tenacity>=8.3,<10",
+]
+
+[project.scripts]
+# Thin CLI so `rapidhire job.md resume.pdf ...` works without spinning up Streamlit.
+rapidhire = "rapidhire.cli:main"
+
+# PEP 735 group rather than an extra: it's uv's native dev-dependency mechanism and
+# is what `default-groups` below hooks into. `uv sync` installs it automatically.
+[dependency-groups]
+dev = [
+    "pytest>=8,<9",
+    "ruff>=0.6",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/rapidhire"]
+
+[tool.uv]
+# Keep the dev group installed by default in local envs; CI installs it explicitly.
+default-groups = ["dev"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+# E/F: pyflakes+pycodestyle, I: import sort, UP: pyupgrade, B: bugbear, SIM: simplify.
+select = ["E", "F", "I", "UP", "B", "SIM"]
+ignore = [
+    "E501",   # line length is handled by the formatter, not the linter
+    "B008",   # FastAPI/Pydantic-style default calls show up as false positives here
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["B011"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+# Chroma + sentence-transformers emit deprecation noise from their deps; keep signal high.
+filterwarnings = [
+    "ignore::DeprecationWarning",
+    "ignore::UserWarning",
+]

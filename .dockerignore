@@ -1,0 +1,18 @@
+.git
+.gitignore
+.venv
+venv
+__pycache__
+*.pyc
+.ruff_cache
+.pytest_cache
+.mypy_cache
+data/chroma
+tests
+.github
+.env
+.env.*
+!.env.example
+# Note: intentionally NOT excluding *.md globally -- the app seeds from
+# data/criteria/*.md at runtime, and the sample job/resume set includes .md files.
+docs

@@ -1,0 +1,10 @@
+[server]
+headless = true
+# Resumes are small; keep uploads modest so a stray large file can't wedge things.
+maxUploadSize = 15
+
+[browser]
+gatherUsageStats = false
+
+[theme]
+base = "light"

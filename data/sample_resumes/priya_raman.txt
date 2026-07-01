@@ -1,0 +1,34 @@
+Priya Raman
+priya.raman@example.com | (415) 555-0182 | San Francisco, CA
+
+SUMMARY
+Backend engineer, 9 years. Most of that spent on payments and high-throughput
+services where being wrong costs money. I like owning a system end to end, from the
+schema up through the on-call rotation.
+
+EXPERIENCE
+
+Staff Software Engineer, Meridian Pay (2020 - present)
+- Own the ledger service: double-entry accounting, idempotent transaction posting,
+  the works. Handles ~4k writes/sec at peak.
+- Redesigned the settlement pipeline; cut end-of-day reconciliation from 40 minutes
+  to under 5 by reworking the batch queries and adding the right indexes.
+- Set up the service's SLOs and the on-call runbook. I carry the pager for it too.
+- Mentor two mid-level engineers; run our design review.
+- Python, PostgreSQL, Kafka, gRPC. Some Go for the latency-sensitive bits.
+
+Senior Backend Engineer, Loomis Health (2016 - 2020)
+- Built patient-billing APIs (HIPAA scope). REST, versioned, the usual.
+- Introduced the team's first real integration test suite. Adoption was slow but it
+  caught a lot once people trusted it.
+- On-call, incident write-ups, the standard operational load.
+
+Software Engineer, Bluebird Logistics (2015 - 2016)
+- Rails app for shipment tracking. First real job; learned how production bites.
+
+EDUCATION
+B.S. Computer Science, UC Davis (2015)
+
+SKILLS
+Python (expert), Go, SQL/PostgreSQL, Kafka, gRPC, Docker, Kubernetes, distributed
+systems, API design, on-call/observability (Prometheus, Grafana).
